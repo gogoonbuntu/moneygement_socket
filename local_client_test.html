@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Test Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Test Client</h1>
+    <button onclick="initialize()">Initialize</button>
+    <button onclick="move()">Move</button>
+    <button onclick="sendText()">Send Text</button>
+    <button onclick="changeRoom()">Change Room</button>
+    <div id="output"></div>
+
+    <script>
+        const socket = io('https://moneygement.run.goorm.site');
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            appendToOutput('Connected to server');
+        });
+
+        socket.on('players', (players) => {
+            console.log('Received players:', players);
+            appendToOutput('Received players: ' + JSON.stringify(players));
+        });
+
+        socket.on('enter', (data) => {
+            console.log('Player entered:', data);
+            appendToOutput('Player entered: ' + JSON.stringify(data));
+        });
+
+        socket.on('exit', (data) => {
+            console.log('Player exited:', data);
+            appendToOutput('Player exited: ' + JSON.stringify(data));
+        });
+
+        socket.on('newText', (data) => {
+            console.log('New text message:', data);
+            appendToOutput('New text message: ' + JSON.stringify(data));
+        });
+
+        function initialize() {
+            socket.emit('initialize', {
+                tempNickname: 'TestUser',
+                tempJobPosition: 'Developer',
+                selectedCharacterGlbNameIndex: 0
+            });
+        }
+
+        function move() {
+            socket.emit('move', [Math.random() * 10, Math.random() * 10, Math.random() * 10]);
+        }
+
+        function sendText() {
+            socket.emit('newText', 'Hello, this is a test message!');
+        }
+
+        function changeRoom() {
+            socket.emit('myRoomChange', { objects: [{ id: 'testObject', position: [1, 1, 1] }] });
+        }
+
+        function appendToOutput(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>' + message + '</p>';
+        }
+    </script>
+</body>
+</html>
